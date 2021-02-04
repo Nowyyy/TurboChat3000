@@ -131,7 +131,7 @@ public class Fenetre extends JFrame{
         panelOuest.setSize(70, 100);
 
         //Emplacement du chat
-        chat = new Chat();
+        chat = new Chat(connexion);
         Box panelEst = Box.createVerticalBox();
         Box bottom = Box.createHorizontalBox();
         panelEst.setBorder(new EmptyBorder(0, 30, 0, 0));

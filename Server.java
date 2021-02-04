@@ -25,6 +25,7 @@ public class Server {
 
         //Connexion d'un client
         try{
+            
             client = serveur.accept();
             System.out.println("Connecté");
         }
@@ -37,13 +38,11 @@ public class Server {
             InputStream inputStream;
             ObjectInputStream objectInputStream;
             Message msg;
-            while(true){
+            while(client.isClosed()==false){
 
                 inputStream = client.getInputStream();
                 objectInputStream = new ObjectInputStream(inputStream);
                 msg = (Message)objectInputStream.readObject();
-                System.out.println("LE MESSAGE");
-                System.out.println(msg);
 
                 OutputStream outputStream = client.getOutputStream();
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
@@ -69,4 +68,6 @@ public class Server {
         }
 
     }
+
+    
 }

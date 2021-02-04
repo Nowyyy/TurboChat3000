@@ -9,6 +9,8 @@ public class Main{
     private static InputStream inputStream;
     private static ObjectInputStream objectInputStream;
     private static Message recept;
+    private static Thread envoi;
+    private static ThreadEcouteClient threadClient;
     public static void main(String[] args) {
         
         window = new Fenetre();
@@ -37,30 +39,9 @@ public class Main{
         //Ecoute permanente des messages recus si bien connecté
 
         if(socks != null){
-
-            Thread envoi = new Thread(new Runnable(){
-                @Override
-                public void run() {
-                    while(true){
-                        try{
-                            recept = null;
-                            inputStream = socks.getInputStream();
-                            objectInputStream = new ObjectInputStream(inputStream);
-                            recept = (Message)objectInputStream.readObject();
-
-                            if(recept != null){
-                                window.getChat().getModel().addElement( recept );
-                            }
-                        }
-                        catch(IOException e){
-                            window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "erreur lecture socket") );
-                        }
-                        catch(ClassNotFoundException e){      
-                            System.err.println("Erreur ClassNotFound");
-                        } 
-                    }
-                }
-            });
+            
+            threadClient = new ThreadEcouteClient();
+            envoi = new Thread(threadClient);
             envoi.start();
         }
     }
@@ -91,14 +72,43 @@ public class Main{
         //Connexion connexion = window.getConnexion();
 
         try{
+            threadClient.setStop(true);
             socks.close();
-            objectInputStream.close();
-            inputStream.close();
+            System.exit(0);
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Vous êtes déconnecté du serveur.") );
         }
         catch(Exception e){
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Probleme de deconnection.") );
         }
 
+    }
+
+    private static class ThreadEcouteClient implements Runnable{
+        private boolean stop = false;
+
+        @Override
+        public void run() {
+            while(!stop){
+                try{
+                    recept = null;
+                    inputStream = socks.getInputStream();
+                    objectInputStream = new ObjectInputStream(inputStream);
+                    recept = (Message)objectInputStream.readObject();
+
+                    if(recept != null){
+                        window.getChat().getModel().addElement( recept );
+                    }
+                }
+                catch(IOException e){
+                    window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "erreur lecture socket") );
+                }
+                catch(ClassNotFoundException e){      
+                    System.err.println("Erreur ClassNotFound");
+                } 
+            }
+        }
+        public void setStop(Boolean stop) {
+            this.stop = stop;
+        }   
     }
 }

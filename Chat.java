@@ -26,14 +26,16 @@ public class Chat implements ActionListener {
      */
     private Bouton bouton;
 
+    private Connexion connexion;
+
     /**
      * Constructeur de la zone de chat
      */
-    public Chat(){
+    public Chat(Connexion connec){
         bouton = new Bouton("Envoyer");
 
         bouton.getBouton().addActionListener(this);
-
+        connexion = connec;
         discussion = new JList<>(model);
 
         message = new JTextField();
@@ -74,9 +76,8 @@ public class Chat implements ActionListener {
     */
     @Override
     public void actionPerformed(ActionEvent arg0){
-        //discussion.setText(message.getText());
-        //model.addElement( new Message("Axel", LocalTime.now(), message.getText()) );
-        Main.envoieMessage(new Message("Axel", LocalTime.now(), message.getText()));
+        
+        Main.envoieMessage(new Message(connexion.getNomText(), LocalTime.now(), message.getText()));
         message.setText("");
     }
 }
