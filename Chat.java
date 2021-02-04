@@ -74,9 +74,9 @@ public class Chat implements ActionListener {
     */
     @Override
     public void actionPerformed(ActionEvent arg0){
-        System.out.println(message.getText());
         //discussion.setText(message.getText());
         //model.addElement( new Message("Axel", LocalTime.now(), message.getText()) );
         Main.envoieMessage(new Message("Axel", LocalTime.now(), message.getText()));
+        message.setText("");
     }
 }

@@ -34,10 +34,23 @@ public class Server {
 
         //Reception d'un message
         try{
-            InputStream inputStream = client.getInputStream();
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            Message msg = (Message)objectInputStream.readObject();
-            System.out.println(msg);
+            InputStream inputStream;
+            ObjectInputStream objectInputStream;
+            Message msg;
+            while(true){
+
+                inputStream = client.getInputStream();
+                objectInputStream = new ObjectInputStream(inputStream);
+                msg = (Message)objectInputStream.readObject();
+                System.out.println("LE MESSAGE");
+                System.out.println(msg);
+
+                OutputStream outputStream = client.getOutputStream();
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+
+                objectOutputStream.writeObject(msg);
+                outputStream.flush();    
+            }
         }
         catch(IOException e){
             System.err.println("Erreur inputStream");
