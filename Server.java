@@ -3,16 +3,20 @@ import java.io.ObjectInputStream;
 import java.io.InputStream;
 import java.io.*;
 import java.net.ServerSocket;
+import java.util.*;
 
 public class Server {
 
     private static ServerSocket serveur;
     private static Socket client;
+    private static List<Socket> listeClients;
     public static void main(String []args){
         int port = 64998;
 
         serveur = null;
         client = null;
+
+        listeClients = new ArrayList<Socket>();
 
         //Creation serveur
         try{
@@ -25,6 +29,7 @@ public class Server {
 
         //Connexion d'un client
         try{
+
             
             client = serveur.accept();
             System.out.println("Connecté");

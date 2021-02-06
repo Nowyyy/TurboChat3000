@@ -73,8 +73,8 @@ public class Main{
 
         try{
             threadClient.setStop(true);
-            socks.close();
-            System.exit(0);
+            //socks.close();
+            //System.exit(0);
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Vous êtes déconnecté du serveur.") );
         }
         catch(Exception e){
