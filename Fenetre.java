@@ -50,6 +50,13 @@ public class Fenetre extends JFrame{
 
         this.setContentPane(principalPanel);
 
+        Box panelOuest = Box.createVerticalBox();
+        Box panelEst = Box.createVerticalBox();
+        Box bottom = Box.createHorizontalBox();
+        panelEst.setVisible(false);
+        panelOuest.setVisible(false);
+        bottom.setVisible(false);
+
         //Positionnement des boutons du haut
         
         Box panelNord1 = Box.createHorizontalBox();
@@ -59,7 +66,7 @@ public class Fenetre extends JFrame{
         Box panelNord5 = Box.createHorizontalBox();
         Box panelNord6 = Box.createHorizontalBox();
         Box panelNord7 = Box.createHorizontalBox();
-        connexion = new Connexion(new JTextField(), new JTextField(), new JTextField());
+        connexion = new Connexion(new JTextField(), new JTextField(), new JTextField(), panelEst, panelOuest, bottom);
 
         principalPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -117,7 +124,6 @@ public class Fenetre extends JFrame{
         //Emplacement de la liste des utilisateurs
         Connectes connect = new Connectes();
 
-        Box panelOuest = Box.createVerticalBox();
 
         principalPanel.add(panelOuest, BorderLayout.WEST);
 
@@ -132,8 +138,7 @@ public class Fenetre extends JFrame{
 
         //Emplacement du chat
         chat = new Chat(connexion);
-        Box panelEst = Box.createVerticalBox();
-        Box bottom = Box.createHorizontalBox();
+        
         panelEst.setBorder(new EmptyBorder(0, 30, 0, 0));
 
         principalPanel.add(panelEst, BorderLayout.CENTER);

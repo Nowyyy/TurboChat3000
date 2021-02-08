@@ -42,7 +42,15 @@ public class Connexion implements ActionListener{
      */
     private String portText;
 
-    boolean connected;
+    /**
+     * Si le client est connecté ou non
+     */
+    private boolean connected;
+
+    private Box est;
+
+    private Box ouest;
+    private Box bottom;
 
     /**
      * Constructeur de la classe
@@ -50,7 +58,7 @@ public class Connexion implements ActionListener{
      * @param ip la zone de texte contenant l'ip de l'utilisateur
      * @param port la zone de texte contenant le port utilisé par l'utilisateur
      */
-    public Connexion(JTextField nom, JTextField ip, JTextField port){
+    public Connexion(JTextField nom, JTextField ip, JTextField port, Box est, Box ouest, Box bottom){
         bouton = new Bouton("Connection");
         bouton.getBouton().addActionListener(this);
         bouton.getBouton().setEnabled(false);
@@ -64,7 +72,9 @@ public class Connexion implements ActionListener{
         ipText = null;
         portText = null;
         connected = false;
-
+        this.est = est;
+        this.bottom = bottom;
+        this.ouest = ouest;
     }
 
     /**
@@ -132,6 +142,10 @@ public class Connexion implements ActionListener{
             port.setEditable(false);
             bouton.getBouton().setText("Deconnection");
             connected = true;
+            this.est.setVisible(true);
+            this.ouest.setVisible(true);
+            this.bottom.setVisible(true);
+            
 
             Main.connectionServer();
         }
@@ -142,6 +156,9 @@ public class Connexion implements ActionListener{
             port.setEditable(true);
             bouton.getBouton().setText("Connection");
             connected = false;
+            this.est.setVisible(false);
+            this.ouest.setVisible(false);
+            this.bottom.setVisible(false);
 
             Main.deconnectionServer();
         }
