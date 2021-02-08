@@ -2,6 +2,7 @@ import java.net.Socket;
 import java.time.LocalTime;
 import java.io.*;
 
+
 public class Main{
 
     private static Fenetre window;
@@ -11,11 +12,13 @@ public class Main{
     private static Message recept;
     private static Thread envoi;
     private static ThreadEcouteClient threadClient;
+
     public static void main(String[] args) {
         
         window = new Fenetre();
 
     }
+
 
     /**
      * Methode permettant de se connecter au serveur
@@ -35,10 +38,11 @@ public class Main{
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Erreur de connexion au serveur.") );
         }
 
-        //Ecoute permanente des messages recus si bien connecté
+        //Ecoute permanente des connectés
 
         if(socks != null){
-            envoieMessage(new Message("Serveur", LocalTime.now(), connexion.getNomText() + " vient de se connecter."));
+
+            envoieMessage(new Message("<font color=black>Serveur</font>", LocalTime.now(), connexion.getNomText() + " vient de se connecter."));
 
             threadClient = new ThreadEcouteClient();
             envoi = new Thread(threadClient);
@@ -58,6 +62,11 @@ public class Main{
 
             objectOutputStream.writeObject(msg);
             outputStream.flush();
+            msg.setColor("green");
+
+            if(msg.getName() != "<font color=black>Serveur</font>"){
+                msg.setName("(You)" + msg.getName());
+            }
             window.getChat().getModel().addElement( msg );
         }
         catch(IOException e){

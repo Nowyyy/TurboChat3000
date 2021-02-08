@@ -20,7 +20,21 @@ public class Server {
      */
     private static ArrayList<ThreadEcouteServer> listeClients;
 
+    private static ArrayList<String> couleurVide;
+    private static ArrayList<String> couleurUse;
+
     public static void main(String []args){
+
+        couleurUse = new ArrayList<String>();
+        couleurVide = new ArrayList<String>();
+        couleurVide.add("red");
+        couleurVide.add("blue");
+        couleurVide.add("purple");
+        couleurVide.add("maroon");
+        couleurVide.add("olive");
+        couleurVide.add("teal");
+        couleurVide.add("fuchsia");
+
         int port = 64998;
 
         serveur = null;
@@ -82,6 +96,16 @@ public class Server {
          */
         @Override
         public void run() {
+            String couleurActuelle;
+
+            if(!couleurVide.isEmpty()){
+                couleurActuelle = couleurVide.get(0);
+                couleurUse.add(couleurVide.get(0));
+                couleurVide.remove(0);
+            }
+            else{
+                couleurActuelle = couleurUse.get(0);
+            }
 
             while(!stop){
 
@@ -99,6 +123,7 @@ public class Server {
                         inputStream = client.getInputStream();
                         objectInputStream = new ObjectInputStream(inputStream);
                         msg = (Message)objectInputStream.readObject();
+                        msg.setColor(couleurActuelle);
 
                         for(int i = 0; i< listeClients.size(); i++){
                             if(listeClients.get(i) != this){
@@ -109,10 +134,22 @@ public class Server {
                             }
                         }
                     }
+
+                    System.out.println("vide" + couleurVide);
+                    System.out.println("use" + couleurUse);
+
                     setStop(true);
                     client.close();
 
                     listeClients.remove(this);
+
+                    couleurVide.add(0, couleurActuelle);
+                    if(!couleurUse.isEmpty()){
+                        couleurUse.remove(couleurActuelle);
+                    }
+
+                    System.out.println("vide" + couleurVide);
+                    System.out.println("use" + couleurUse);
                 }
                 catch(IOException e){
                     try{
