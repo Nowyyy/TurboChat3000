@@ -30,7 +30,6 @@ public class Main{
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Tentative de connexion au serveur.") );
 
             socks = new Socket(connexion.getIpText(), Integer.parseInt(connexion.getPortText()));
-            window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Vous êtes connecté au serveur.") );
         }
         catch(Exception e){
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Erreur de connexion au serveur.") );
@@ -39,7 +38,8 @@ public class Main{
         //Ecoute permanente des messages recus si bien connecté
 
         if(socks != null){
-            
+            envoieMessage(new Message("Serveur", LocalTime.now(), connexion.getNomText() + " vient de se connecter."));
+
             threadClient = new ThreadEcouteClient();
             envoi = new Thread(threadClient);
             envoi.start();
@@ -58,6 +58,7 @@ public class Main{
 
             objectOutputStream.writeObject(msg);
             outputStream.flush();
+            window.getChat().getModel().addElement( msg );
         }
         catch(IOException e){
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "erreur lecture socket") );
@@ -69,13 +70,16 @@ public class Main{
      */
     public static void deconnectionServer(){
 
-        //Connexion connexion = window.getConnexion();
+        Connexion connexion = window.getConnexion();
 
         try{
+            envoieMessage(new Message("Serveur", LocalTime.now(), connexion.getNomText() + " vient de se deconnecter."));
             threadClient.setStop(true);
-            //socks.close();
-            //System.exit(0);
-            window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Vous êtes déconnecté du serveur.") );
+           
+            window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Merci d'avoir utilisé ce chat !") );
+            
+            socks.close();
+            System.exit(0);
         }
         catch(Exception e){
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Probleme de deconnection.") );
@@ -83,11 +87,23 @@ public class Main{
 
     }
 
+    /**
+     * Classe thread afin que le client écoute la reception de message
+     */
     private static class ThreadEcouteClient implements Runnable{
+
+        /**
+         * Boolean permettant d'arrêter le thread
+         */
         private boolean stop = false;
 
+        /**
+         * methode de lancement du thread
+         */
         @Override
         public void run() {
+
+            //Ecoute permanente et affichage a la reception d'un message
             while(!stop){
                 try{
                     recept = null;
@@ -107,6 +123,10 @@ public class Main{
                 } 
             }
         }
+        /**
+         * Methode permettant d'arrêter le thread
+         * @param stop le boolean a mettre a true pour arreter le thread
+         */
         public void setStop(Boolean stop) {
             this.stop = stop;
         }   

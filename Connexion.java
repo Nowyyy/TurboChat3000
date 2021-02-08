@@ -122,11 +122,11 @@ public class Connexion implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent arg0){
 
+        //On rend les champs non editable a la connexion
         if(connected == false){
             nomText = nom.getText();
             ipText = ip.getText();
             portText = port.getText();
-            //System.out.println(nomText + " " + ipText + " " + portText);
             nom.setEditable(false);
             ip.setEditable(false);
             port.setEditable(false);
@@ -135,6 +135,7 @@ public class Connexion implements ActionListener{
 
             Main.connectionServer();
         }
+        //On rend les champs editables a la deconnexion
         else{
             nom.setEditable(true);
             ip.setEditable(true);
