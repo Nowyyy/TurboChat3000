@@ -1,4 +1,3 @@
-
 import javax.swing.JButton;
 
 /**
@@ -13,7 +12,6 @@ public class Bouton {
     /**
      * Constructeur de la classe
      * @param textBouton le texte ecrit sur le bouton
-     * @return Bouton, le bouton créé
      */
     public Bouton(String textBouton){
         bouton = new JButton(textBouton);
@@ -21,7 +19,7 @@ public class Bouton {
 
     /**
      * Getter du boutton
-     * @JButton, le bouton
+     * @return bouton, le bouton
      */
     public JButton getBouton(){
         return bouton;

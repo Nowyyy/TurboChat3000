@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.*;
 import java.net.ServerSocket;
 import java.util.*;
+import java.time.LocalTime;
 
 /**
  * Classe gerant le serveur. Classe a lancer pour lancer le serveur
@@ -20,8 +21,20 @@ public class Server {
      */
     private static ArrayList<ThreadEcouteServer> listeClients;
 
+    /**
+     * Tableau contenant les différentes couleurs non utilisées
+     */
     private static ArrayList<String> couleurVide;
+
+    /**
+     * Tableau contenant les différentes couleurs utilisées
+     */
     private static ArrayList<String> couleurUse;
+
+    /**
+     * Tableau contenant la liste des utilisateurs connectés
+     */
+    private static ArrayList<User> userList = new ArrayList<User>();
 
     public static void main(String []args){
 
@@ -30,11 +43,12 @@ public class Server {
         couleurVide.add("red");
         couleurVide.add("blue");
         couleurVide.add("purple");
-        couleurVide.add("maroon");
         couleurVide.add("olive");
+        couleurVide.add("maroon");
         couleurVide.add("teal");
         couleurVide.add("fuchsia");
 
+        //Port a changer au besoin
         int port = 64998;
 
         serveur = null;
@@ -72,14 +86,20 @@ public class Server {
         catch(Exception e){
             System.err.println("Erreur fermeture serveur");
         }
-
     }
 
     /**
      * Classe permettant de gerer les threads d'écoute serveur
      */
     private static class ThreadEcouteServer extends Thread{
+        /**
+         * Le boolean d'arrêt du thread
+         */
         private boolean stop = false;
+
+        /**
+         * Le socket du client
+         */
         private Socket client;
 
         /**
@@ -96,7 +116,11 @@ public class Server {
          */
         @Override
         public void run() {
+
+            //On choisi une couleur parmi celles non utilisées
+            //Et on la met dans le tableau utilisé
             String couleurActuelle;
+            User userTmp = null;
 
             if(!couleurVide.isEmpty()){
                 couleurActuelle = couleurVide.get(0);
@@ -107,49 +131,95 @@ public class Server {
                 couleurActuelle = couleurUse.get(0);
             }
 
+            //On ecoute en boucle la reception de message
             while(!stop){
-
-                /**
-                 * On ecoute en boucle la reception de message venan du socket et on transfert le message a tout le monde
-                 */
                 try{
                     InputStream inputStream = null;
                     ObjectInputStream objectInputStream = null;
                     OutputStream outputStream = null;
                     ObjectOutputStream objectOutputStream = null;
                     Message msg;
-                    while(client.isClosed()==false){
+                    int indice = -1;
+                    boolean exist = false;
 
+                    while(client.isClosed()==false){
                         inputStream = client.getInputStream();
                         objectInputStream = new ObjectInputStream(inputStream);
                         msg = (Message)objectInputStream.readObject();
                         msg.setColor(couleurActuelle);
-
-                        for(int i = 0; i< listeClients.size(); i++){
-                            if(listeClients.get(i) != this){
-                                outputStream = listeClients.get(i).client.getOutputStream();
-                                objectOutputStream = new ObjectOutputStream(outputStream);
-                                objectOutputStream.writeObject(msg);
-                                outputStream.flush(); 
+                        
+                        //Si on a pas ajouter d'utilisateur dans ce thread
+                        if(exist == false){
+                            //Et que l'utilisateur du message ne s'appelle pas "serveur"
+                            if(!msg.getName().contains("Serveur")){
+                                //On verifie si l'utilisateur existe si la liste n'est pas vide
+                                if(!userList.isEmpty()){
+                                    for(User user : userList){
+                                        if(msg.getName().contains(user.getName()) && msg.getColor().contains(user.getColor())){
+                                            exist = true;
+                                        }
+                                    }
+                                }
                             }
+                            //Si l'utilisateur s'appelle serveur, on extrait le nom de l'utilisateur a la connexion et on l'ajoute
+                            else{
+                                exist = true;
+                                String tmp1 = msg.getMess();
+                                String tmp2 = tmp1.substring(0, tmp1.indexOf(" "));
+                                userTmp = new User(tmp2, msg.getColor());
+                                userList.add(userTmp);
+                            }
+                        
+                            //Si on a toujours pas ajouté d'utilisateur, on l'ajoute
+                            if(exist == false){
+                                exist = true;
+                                userTmp = new User(msg.getName(), msg.getColor());
+                                userList.add(userTmp);
+                            }
+                            indice = userList.size();
+                            System.out.println(indice);
+                        }
+                        
+                        //On copie la liste des utilisateurs du serveur dans la liste des utilisateurs du message
+                        msg.setUserList(userList);
+
+                        //On parcours la liste des sockets clients et on envoie le message a tout le monde
+                        for(int i = 0; i< listeClients.size(); i++){
+                            outputStream = listeClients.get(i).client.getOutputStream();
+                            objectOutputStream = new ObjectOutputStream(outputStream);
+                            objectOutputStream.writeObject(msg);
+                            outputStream.flush(); 
                         }
                     }
 
-                    System.out.println("vide" + couleurVide);
-                    System.out.println("use" + couleurUse);
+                    //A l'interruption du thread, on créé un message de deconnexion
+                    Message msgTmp = new Message("<font color=black>Serveur</font>", LocalTime.now(), userList.get(listeClients.indexOf(this)).getName() + " vient de se deconnecter.");
+                    //On supprime l'utilisateur qui se deconnecte
+                    userList.remove(listeClients.indexOf(this));
+                    //On ajoute la liste des utilisateurs a la liste du message
+                    msgTmp.setUserList(userList);
 
-                    setStop(true);
-                    client.close();
-
+                    //On supprime le socket du client qui se déconnecte
                     listeClients.remove(this);
 
+                    //On envoie le message de deconnection a tous les sockets restants
+                    for(int i = 0; i< listeClients.size(); i++){
+                        outputStream = listeClients.get(i).client.getOutputStream();
+                        objectOutputStream = new ObjectOutputStream(outputStream);
+                        objectOutputStream.writeObject(msgTmp);
+                        outputStream.flush(); 
+                    }
+                    
+                    //On demande l'arrêt du thread
+                    setStop(true);
+                    client.close();
+                    
+                    //On libere la couleur de l'utilisateur avant la fermeture du thread
                     couleurVide.add(0, couleurActuelle);
                     if(!couleurUse.isEmpty()){
                         couleurUse.remove(couleurActuelle);
                     }
 
-                    System.out.println("vide" + couleurVide);
-                    System.out.println("use" + couleurUse);
                 }
                 catch(IOException e){
                     try{

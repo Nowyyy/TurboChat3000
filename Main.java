@@ -1,16 +1,45 @@
 import java.net.Socket;
 import java.time.LocalTime;
 import java.io.*;
+import java.util.*;
+//import javax.swing.*;
 
 
 public class Main{
 
+    /**
+     * La fenetre du logiciel
+     */
     private static Fenetre window;
+
+    /**
+     * Le socket du client
+     */
     private static Socket socks;
+
+    /**
+     * l'input Stream du client
+     */
     private static InputStream inputStream;
+
+    /**
+     * l'object input stream du client
+     */
     private static ObjectInputStream objectInputStream;
+
+    /**
+     * Le message recu par le serveur
+     */
     private static Message recept;
+
+    /**
+     * Le thread pour l'écoute des reponses
+     */
     private static Thread envoi;
+
+    /**
+     * Le type de thread pour l'écoute des reponses
+     */
     private static ThreadEcouteClient threadClient;
 
     public static void main(String[] args) {
@@ -19,6 +48,13 @@ public class Main{
 
     }
 
+    /**
+     * Le getter de la fenetre du logiciel
+     * @return Fenetre, la fenetre du logiciel
+     */
+    public static Fenetre getFenetre(){
+        return window;
+    }
 
     /**
      * Methode permettant de se connecter au serveur
@@ -33,21 +69,24 @@ public class Main{
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Tentative de connexion au serveur.") );
 
             socks = new Socket(connexion.getIpText(), Integer.parseInt(connexion.getPortText()));
+
+            //Si la connexion est établie, on lance les threads d'écoute permanente
+            if(socks != null){
+                envoieMessage(new Message("<font color=black>Serveur</font>", LocalTime.now(), connexion.getNomText() + " vient de se connecter."));
+                window.getChat().getDiscussion().ensureIndexIsVisible(window.getChat().getModel().getSize());
+
+                threadClient = new ThreadEcouteClient();
+                envoi = new Thread(threadClient);
+                envoi.start();
+
+
+            }
         }
         catch(Exception e){
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Erreur de connexion au serveur.") );
         }
 
-        //Ecoute permanente des connectés
-
-        if(socks != null){
-
-            envoieMessage(new Message("<font color=black>Serveur</font>", LocalTime.now(), connexion.getNomText() + " vient de se connecter."));
-
-            threadClient = new ThreadEcouteClient();
-            envoi = new Thread(threadClient);
-            envoi.start();
-        }
+        
     }
 
     /**
@@ -56,18 +95,14 @@ public class Main{
      */
     public static void envoieMessage(Message msg){
 
+        //On créé le lien avec le serveur et on envoie le message
         try{
             OutputStream outputStream = socks.getOutputStream();
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
 
             objectOutputStream.writeObject(msg);
             outputStream.flush();
-            msg.setColor("green");
 
-            if(msg.getName() != "<font color=black>Serveur</font>"){
-                msg.setName("(You)" + msg.getName());
-            }
-            window.getChat().getModel().addElement( msg );
         }
         catch(IOException e){
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "erreur lecture socket") );
@@ -79,10 +114,8 @@ public class Main{
      */
     public static void deconnectionServer(){
 
-        Connexion connexion = window.getConnexion();
-
+        //On arrête le thread client et on ferme la fenetre
         try{
-            envoieMessage(new Message("Serveur", LocalTime.now(), connexion.getNomText() + " vient de se deconnecter."));
             threadClient.setStop(true);
            
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Merci d'avoir utilisé ce chat !") );
@@ -111,7 +144,6 @@ public class Main{
          */
         @Override
         public void run() {
-
             //Ecoute permanente et affichage a la reception d'un message
             while(!stop){
                 try{
@@ -120,8 +152,16 @@ public class Main{
                     objectInputStream = new ObjectInputStream(inputStream);
                     recept = (Message)objectInputStream.readObject();
 
+                    //Si on a bien recu un message on clear la liste des clients, on l'update et on ajoute le message
                     if(recept != null){
-                        window.getChat().getModel().addElement( recept );
+                        ArrayList<User> listTmp = new ArrayList<>(recept.getUserList());
+                        window.getConnectes().getModel().removeAllElements();
+
+                        for(User user: listTmp){
+                            window.getConnectes().getModel().addElement(user);
+                        }
+                        
+                        window.getChat().getModel().addElement( recept);
                     }
                 }
                 catch(IOException e){

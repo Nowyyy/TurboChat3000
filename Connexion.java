@@ -47,9 +47,19 @@ public class Connexion implements ActionListener{
      */
     private boolean connected;
 
+    /**
+     * Lien vers la box Est de la fenêtre
+     */
     private Box est;
 
+    /**
+     * Lien vers la box Ouest de la fenêtre
+     */
     private Box ouest;
+
+    /**
+     * Lien vers la box Bottom de la fenêtre
+     */
     private Box bottom;
 
     /**
@@ -57,6 +67,9 @@ public class Connexion implements ActionListener{
      * @param nom la zone de texte contenant le nom de l'utilisateur
      * @param ip la zone de texte contenant l'ip de l'utilisateur
      * @param port la zone de texte contenant le port utilisé par l'utilisateur
+     * @param est Lien vers la box Est de la fenêtre
+     * @param ouest Lien vers la box Ouest de la fenêtre
+     * @param bottom Lien vers la box Bottom de la fenêtre
      */
     public Connexion(JTextField nom, JTextField ip, JTextField port, Box est, Box ouest, Box bottom){
         bouton = new Bouton("Connection");
@@ -109,18 +122,34 @@ public class Connexion implements ActionListener{
         return bouton.getBouton();
     }
 
+    /**
+     * Getter du boolean de connexion
+     * @return boolean, si le client est connecté ou non
+     */
     public boolean getConnected(){
         return connected;
     }
 
+    /**
+     * Getter de l'ip
+     * @return String, le texte de l'ip
+     */
     public String getIpText(){
         return ipText;
     }
 
+    /**
+     * Getter du nom
+     * @return String, le texte du nom
+     */
     public String getNomText(){
         return nomText;
     }
 
+    /**
+     * Getter du port
+     * @return Stringn le texte du port
+     */
     public String getPortText(){
         return portText;
     }
@@ -132,7 +161,7 @@ public class Connexion implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent arg0){
 
-        //On rend les champs non editable a la connexion
+        //On rend les champs non editable a la connexion et la partie basse visible
         if(connected == false){
             nomText = nom.getText();
             ipText = ip.getText();
@@ -149,7 +178,8 @@ public class Connexion implements ActionListener{
 
             Main.connectionServer();
         }
-        //On rend les champs editables a la deconnexion
+
+        //On rend les champs editables a la deconnexion et la partie basse invisible
         else{
             nom.setEditable(true);
             ip.setEditable(true);
@@ -162,8 +192,5 @@ public class Connexion implements ActionListener{
 
             Main.deconnectionServer();
         }
-        
-
     }
-
 }

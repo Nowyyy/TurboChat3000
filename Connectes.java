@@ -5,26 +5,37 @@ import javax.swing.*;
  */
 public class Connectes{
 
+    /**
+     * le moodèle de la Jlist
+     */
+    private DefaultListModel<User> model = new DefaultListModel<>();
 
     /**
-     * la zone de texte contenant les utilisateurs connectés
+     * La liste contenant la discussion
      */
-    private JTextField connectes;
+    private JList<User> connectes;
 
     /**
      * Constructeur
      */
     public Connectes(){
-        this.connectes = new JTextField("Aucun Connecté");
+        this.connectes = new JList<>(model);
         this.connectes.setSize(30, 50);
-        this.connectes.setEditable(false);
     }
 
     /**
      * Getter des connecté
-     * @return JTextField la zone de texte contenant les utilisateurs connectés
+     * @return JList la zone de texte contenant les utilisateurs connectés
      */
-    public JTextField getConnectes(){
+    public JList<User> getConnectes(){
         return connectes;
+    }
+
+    /**
+     * Getter du model de la Jlist
+     * @return DefaultListModel le modèle de la JList
+     */
+    public DefaultListModel<User> getModel(){
+        return model;
     }
 }

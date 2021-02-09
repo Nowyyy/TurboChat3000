@@ -8,38 +8,76 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 /**
- * Une classe Fenetre, classe fille de JFrame qui permet de créer une fenetre personnalisée
- * 
- * @param WIN_WIDTH la largeur de la fenetre
- * @param WIN_HEIGHT la hauteur de la fenetre
- * @param contentPane le gestionnaire de placement dans la fenetre
- * @param serialVersionUID numéro de version
- * @param principalPanel La fenetre du logiciel
- * @param connexion la connection de l'utilisateur
- * @param connectBtn bouton de connection
- * @param []llFields tableau contenant les champs a ecouter pour la connexion
- * @param nom le champ pour rentrer le nom
- * @param ip le champ pour rentrer l'adresse ip
- * @param port le champ pour rentrer le port
+ * Classe Fenetre, classe fille de JFrame qui permet de créer une fenetre personnalisée
 */
 public class Fenetre extends JFrame{
     
-    private int WIN_WIDTH = 480, WIN_HEIGHT = 680;
+    /**
+     * La largeur de la fenetre
+     */
+    private int WIN_WIDTH = 680;
+
+    /**
+     * la hauteur de la fenetre
+     */
+    private int WIN_HEIGHT = 680;
+
+    /**
+     * numéro de version
+     */
     private static final long serialVersionUID = 1;
+
+    /**
+     * La fenetre du logiciel
+     */
     private JPanel principalPanel;
+
+    /**
+     * la connection de l'utilisateur
+     */
     private Connexion connexion;
+
+    /**
+     * La section chat du logiciel
+     */
     private Chat chat;
+
+    /**
+     * bouton de connection
+     */
     JButton connectBtn;
+
+    /**
+     * tableau contenant les champs a ecouter pour la connexion
+     */
     JTextField []llFields = new JTextField[3];
+
+    /**
+     * le champ pour rentrer le nom
+     */
     JTextField nom;
+
+    /**
+     * le champ pour rentrer l'adresse ip
+     */
     JTextField ip;
-    JTextField port;    
+
+    /**
+     * le champ pour rentrer le port
+     */
+    JTextField port; 
+    
+    /**
+     * La zone des connectes
+     */
+    Connectes connect;
 
     /**
      * Constructeur de la fenetre
      */
     public Fenetre(){
 
+        //Creation de la fenetre principale
         super("TurboChat 3000");
 
         this.setSize(WIN_WIDTH, WIN_HEIGHT);
@@ -50,15 +88,10 @@ public class Fenetre extends JFrame{
 
         this.setContentPane(principalPanel);
 
+        //Initialisation des boxes
         Box panelOuest = Box.createVerticalBox();
         Box panelEst = Box.createVerticalBox();
         Box bottom = Box.createHorizontalBox();
-        panelEst.setVisible(false);
-        panelOuest.setVisible(false);
-        bottom.setVisible(false);
-
-        //Positionnement des boutons du haut
-        
         Box panelNord1 = Box.createHorizontalBox();
         Box panelNord2 = Box.createVerticalBox();
         Box panelNord3 = Box.createVerticalBox();
@@ -66,11 +99,18 @@ public class Fenetre extends JFrame{
         Box panelNord5 = Box.createHorizontalBox();
         Box panelNord6 = Box.createHorizontalBox();
         Box panelNord7 = Box.createHorizontalBox();
+
+        panelEst.setVisible(false);
+        panelOuest.setVisible(false);
+        bottom.setVisible(false);
+
+        //Positionnement des boutons du haut
         connexion = new Connexion(new JTextField(), new JTextField(), new JTextField(), panelEst, panelOuest, bottom);
 
         principalPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         //Installation du listener de connection et creations des JTextFields correspondant au listener de connection
+        //Le listener sert a verifier que tous les champs de connexions sont remplis avant d'autoriser le clic sur le boutons
         LabelListener ll = new LabelListener();
         connectBtn = connexion.getBouton();
 
@@ -115,23 +155,18 @@ public class Fenetre extends JFrame{
 
         //Ajout du bouton et de la zone port pour la troisième zone verticale
         panelNord6.add(connectBtn, BorderLayout.CENTER);
-
        
         panelNord7.add(new JLabel("Port"));
         panelNord7.add(Box.createRigidArea(new Dimension(10, 0)));
         panelNord7.add(port);
 
         //Emplacement de la liste des utilisateurs
-        Connectes connect = new Connectes();
-
-
         principalPanel.add(panelOuest, BorderLayout.WEST);
-
         panelOuest.add(new JLabel("Connectés", SwingConstants.CENTER), BorderLayout.CENTER);
 
+        connect = new Connectes();
         JScrollPane affichageConnecte = new JScrollPane(connect.getConnectes(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         affichageConnecte.setPreferredSize(new Dimension(100, 400));
-
 
         panelOuest.add(affichageConnecte);
         panelOuest.setSize(70, 100);
@@ -151,10 +186,15 @@ public class Fenetre extends JFrame{
         panelEst.add(affichageChat, BorderLayout.CENTER);
         panelEst.add(Box.createRigidArea(new Dimension(0, 10)));
         panelEst.add(new JLabel("Message", SwingConstants.CENTER), BorderLayout.CENTER);
+
+        EnvoiListener ml = new EnvoiListener();
+        chat.getMessage().getDocument().addDocumentListener(ml);
+
         panelEst.add(chat.getMessage());
         panelEst.add(Box.createRigidArea(new Dimension(0, 20)));
         panelEst.add(bottom);
 
+        //Bouton d'envoi de message
         bottom.add(chat.getBouton(), BorderLayout.CENTER);
         bottom.setBorder(new EmptyBorder(0, 48, 0, 0));
 
@@ -162,13 +202,37 @@ public class Fenetre extends JFrame{
         this.setVisible(true);
     }
 
+    /**
+     * Getter de la connexion
+     * @return Connexion, la connexion du client
+     */
     public Connexion getConnexion(){
         return connexion;
     }
 
+    /**
+     * Getter du chat
+     * @return Chat, le chat
+     */
     public Chat getChat(){
         return chat;
     }
+
+    /**
+     * Getter du Connectes
+     * @return Connectes, la liste des connectés
+     */
+    public Connectes getConnectes(){
+        return connect;
+    }
+
+    /*
+     * Getter du panneau principal
+     * @return
+    public JPanel getPrincipalPanel(){
+        return principalPanel;
+    }*/
+    
 
     /**
      * Classe privée permettant de creer un listener pour la connexion
@@ -193,7 +257,12 @@ public class Fenetre extends JFrame{
          * On verifie que les champs sont bien remplis. Si oui, on autorise le click sur le bouton
          */
         private void updated() {
+
+            /**
+             * boolean indiquant si tous les champs sont remplis ou non
+             */
             boolean enabled = true;
+            
             for (int i =0; i<llFields.length; i++) {
                 if (llFields[i].getText().trim().equals("")) {
                     enabled = false;
@@ -205,6 +274,47 @@ public class Fenetre extends JFrame{
             }
             else{
                 connectBtn.setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * Classe privée permettant de creer un listener pour la l'envoi de message
+     */
+    private class EnvoiListener implements DocumentListener{
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            updated();
+        }
+    
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            updated();
+        }
+    
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            updated();
+        }
+    
+        /**
+         * On verifie que le champs est bien rempli, si oui on autorise le click
+         */
+        private void updated() {
+
+            /**
+             * boolean indiquant si tous les champs sont remplis ou non
+             */
+            boolean enabled = true;
+
+            if (chat.getMessage().getText().trim().equals("")) {
+                enabled = false;
+            }
+            if(enabled){
+                chat.getBouton().setEnabled(true);
+            }
+            else{
+                chat.getBouton().setEnabled(false);
             }
         }
     }

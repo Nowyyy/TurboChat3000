@@ -10,10 +10,13 @@ import javax.swing.JList;
 public class Chat implements ActionListener {
     
     /**
-     * le champs de texte contenant tous les messages
+     * le moodèle de la Jlist
      */
-   
     private DefaultListModel<Message> model = new DefaultListModel<>();
+
+    /**
+     * La liste contenant la discussion
+     */
     private JList<Message> discussion;
 
     /**
@@ -26,17 +29,23 @@ public class Chat implements ActionListener {
      */
     private Bouton bouton;
 
+    /**
+     * Le lien vers la classe de connexion pour acceder a ses méthodes
+     */
     private Connexion connexion;
 
     /**
      * Constructeur de la zone de chat
+     * @param connec, le lien vers la classe de connexion pour acceder a ses méthodes
      */
     public Chat(Connexion connec){
         bouton = new Bouton("Envoyer");
 
+        bouton.getBouton().setEnabled(false);
         bouton.getBouton().addActionListener(this);
         connexion = connec;
-        discussion = new JList<>(model);
+        discussion = new JList<>();
+        discussion.setModel(model);
 
         message = new JTextField();
         message.setSize(20, 10);
@@ -44,7 +53,7 @@ public class Chat implements ActionListener {
 
     /**
      * Getter de la discussion
-     * @return JTextField la zone de texte de la discussion
+     * @return JList, la zone de texte de la discussion
      */
     public JList<Message> getDiscussion(){
         return discussion;
@@ -52,7 +61,7 @@ public class Chat implements ActionListener {
 
     /**
      * Getter de message
-     * @return JTextField la zone de texte des messages écrits
+     * @return JTextField, la zone de texte des messages écrits
      */
     public JTextField getMessage(){
         return message;
@@ -60,12 +69,16 @@ public class Chat implements ActionListener {
 
     /**
      * Getter du bouton
-     * @return JButton le bouton envoyer
+     * @return JButton, le bouton envoyer
      */
     public JButton getBouton(){
         return bouton.getBouton();
     }
 
+    /**
+     * Getter du model de la Jlist
+     * @return DefaultListModel le modèle de la JList
+     */
     public DefaultListModel<Message> getModel(){
         return model;
     }
