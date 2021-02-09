@@ -121,7 +121,7 @@ public class Main{
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Merci d'avoir utilisé ce chat !") );
             
             socks.close();
-            System.exit(0);
+            window.getChat().getModel().removeAllElements();
         }
         catch(Exception e){
             window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "Probleme de deconnection.") );
@@ -165,7 +165,7 @@ public class Main{
                     }
                 }
                 catch(IOException e){
-                    window.getChat().getModel().addElement( new Message("Serveur", LocalTime.now(), "erreur lecture socket") );
+                    System.err.println("erreur lecture socket");
                 }
                 catch(ClassNotFoundException e){      
                     System.err.println("Erreur ClassNotFound");
